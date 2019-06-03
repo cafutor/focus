@@ -39,14 +39,14 @@ tips:一般的你可能会需要配置多个入口文件(src/pageOne/index.view,
 
 ## focus-center快速预览
 <div style="text-align:left">
-    <img style="width:300px;height:auto" src="http://119.23.254.195/files/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-06-02%20%E4%B8%8B%E5%8D%8810.23.07.png">
+    <img style="width:300px;height:auto" src="http://119.23.254.195/files/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-06-02%20%E4%B8%8B%E5%8D%8810.23.07%20(1).png">
 </div>
 
 在你的页面上应该只有三个很重要的文件（index.business,index.model,index.view），正如上面的页面工程结构图所展示的，黑框部分是focus的项目结构，但请忽略common这个公共的组件文件夹，正确的做法是将这个业务组件库分离出去，单独发布。如果你需要使用三方提供的业务组件，这种情况你才能在页面工程下写定制的组件，但是尽量保持页面工程的干净。
 
 * *.business文件
 <div style="text-align:left">
-    <img style="width:550px;height:auto" src="http://119.23.254.195/files/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-06-02%20%E4%B8%8B%E5%8D%8810.59.46.png">
+    <img style="width:550px;height:auto" src="http://119.23.254.195/files/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-06-03%20%E4%B8%8B%E5%8D%888.22.40.png">
 </div>
 
 
@@ -71,7 +71,7 @@ tips:一般的你可能会需要配置多个入口文件(src/pageOne/index.view,
 * index.view文件
     
 <div style="text-align:left">
-    <img style="width:550px;height:auto" src="http://119.23.254.195/files/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-06-03%20%E4%B8%8B%E5%8D%887.34.41.png">
+    <img style="width:550px;height:auto" src="http://119.23.254.195/files/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-06-03%20%E4%B8%8B%E5%8D%888.27.36.png">
 </div>
     index.view文件是页面的视图文件，这个文件就是你组织业务组件地方。
     为了保持.view文件的干净清爽，index.view文件中有一只能有import语句，和View tag，如果加入了其他的一些语句，则会报错。View tag上有三个prop。modelFromServerKey是从服务端过来的静态data,最后会从index.model文件中导出的model做一个合并。
