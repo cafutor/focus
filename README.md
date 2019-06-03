@@ -70,9 +70,39 @@ tips:一般的你可能会需要配置多个入口文件(src/pageOne/index.view,
 
 * index.view文件
     
-<div style="text-align:left">
-    <img style="width:550px;height:auto" src="http://119.23.254.195/files/%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202019-06-03%20%E4%B8%8B%E5%8D%888.27.36.png">
-</div>
+```javascript
+import React from 'react';
+import 'antd/lib/modal/style/css.js';
+import MyTodoList from './common/MyTodoList/index.jsx';
+import Mydia from './common/MyDialog/index.jsx';
+import './index.business';
+
+<View modelFromServerKey="model" customModel="./index.model" root="root">
+    <Scope>
+        <Text type="h1" value="@model.text" />
+        <MyTodoList
+            dataSource="@model.dataSource"
+            id='myTodoListOne' />
+    </Scope>
+    <Text type="h2" value="@model.text" />
+    <MyTodoList
+        dataSource="@model.dataSource"
+        id='myTodoList' />
+    <Scope>
+        <Text type="h3" value="@model.text" />
+        <MyTodoList
+            dataSource="@model.dataSource"
+            id='myTodoListTwo' />
+    </Scope>
+    <Scope>
+        <Text type="h3" value="@model.text" />
+        <MyTodoList
+            dataSource="@model.list.dataSource"
+            id='myTodoListThree' />
+    </Scope>
+    <Mydia id="myDia" visible="@model.dialogVis"  />
+</View>
+```
     index.view文件是页面的视图文件，这个文件就是你组织业务组件地方。
     为了保持.view文件的干净清爽，index.view文件中有一只能有import语句，和View tag，如果加入了其他的一些语句，则会报错。View tag上有三个prop。modelFromServerKey是从服务端过来的静态data,最后会从index.model文件中导出的model做一个合并。
 
