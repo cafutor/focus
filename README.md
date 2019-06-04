@@ -204,7 +204,3 @@ export default MyTodoList;
 ````
 
 ### that is it,goodluck ! 
-
-tips:如果你的应用是spa，你可能不需要这。
-    
-
