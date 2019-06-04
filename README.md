@@ -205,8 +205,6 @@ export default MyTodoList;
 
 ### that is it,goodluck ! 
 
-tips:不太适合SPA
-
-如果你发现了bug（错误截图，浏览器），请发往这个邮箱huangtao19900205@outlook.com
+tips:如果你的应用是spa，你可能不需要这。
     
 
