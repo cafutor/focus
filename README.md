@@ -204,9 +204,5 @@ export default MyTodoList;
 ````
 
 ### that is it,goodluck ! 
-
-tips:不太适合SPA
-
-如果你发现了bug（错误截图，浏览器），请发往这个邮箱huangtao19900205@outlook.com
     
 
