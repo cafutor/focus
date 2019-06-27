@@ -4,7 +4,7 @@
   "description": "focus center",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "git@github.com:cafutor/focus-center.git"
   },
   "keywords": [
     "focus",
