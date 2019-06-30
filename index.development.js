@@ -1,5 +1,6 @@
 import React from 'react';
 import EventCenter from './event-center';
+import { HashRouter as Router, Route, Link, Switch } from 'react-router-dom';
 import { isObjEmpty } from './utils';
 const eventCenter = new EventCenter();
 
@@ -141,6 +142,35 @@ export class View extends React.Component {
     }
 };
 
+export const route = (Com) => {
+    /**
+     * 
+     * ignore special props
+     * exact|path
+     * ***/
+    const ignoreSpecialProps = (props = {}) => {
+        const correctProps = {};
+        for (let i in props) {
+            if (Object.prototype.hasOwnProperty.call(props, i)) {
+                if (i !== 'exact' && i !== 'path') {
+                    correctProps[i] = props[i];
+                }
+            }
+        };
+        return correctProps;
+    };
+ 
+    return class extends React.PureComponent {
+        render() {
+            const { exact, path } = this.props;
+            return (<Router >
+                    <Route {...{ exact, path }} component={(_props) => {
+                        return <Com {...Object.assign({ link: Link,router:Router,switch:Switch}, ignoreSpecialProps(this.props), _props)} />
+                    }} />
+            </Router >);
+        }
+    }
+}
 
 const focus = (Com) => {
     return class extends React.Component {
@@ -171,6 +201,7 @@ const focus = (Com) => {
                 }
             }
         }
+        //  ?
         changeProps = (partialState) => {
             if (Object.prototype.toString.call(partialState) !== '[object Object]') {
                 throw new TypeError('partialState is not a pure object @changeProps');

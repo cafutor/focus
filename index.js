@@ -5,13 +5,13 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = exports.View = exports.Scope = exports.Text = exports.getModel = exports.updateModel = exports.getComponent = exports.saveRootModelPropsSet = exports.saveRootElement = void 0;
-
-var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/extends"));
+exports["default"] = exports.route = exports.View = exports.Scope = exports.Text = exports.getModel = exports.updateModel = exports.getComponent = exports.saveRootModelPropsSet = exports.saveRootElement = void 0;
 
 var _objectSpread2 = _interopRequireDefault(require("@babel/runtime/helpers/objectSpread"));
 
 var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
+
+var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/extends"));
 
 var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
 
@@ -30,6 +30,8 @@ var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits
 var _react = _interopRequireDefault(require("react"));
 
 var _eventCenter = _interopRequireDefault(require("./event-center"));
+
+var _reactRouterDom = require("react-router-dom");
 
 var _utils = require("./utils");
 
@@ -283,6 +285,67 @@ function (_React$Component2) {
 exports.View = View;
 ;
 
+var route = function route(Com) {
+  /**
+   * 
+   * ignore special props
+   * exact|path
+   * ***/
+  var ignoreSpecialProps = function ignoreSpecialProps() {
+    var props = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var correctProps = {};
+
+    for (var i in props) {
+      if (Object.prototype.hasOwnProperty.call(props, i)) {
+        if (i !== 'exact' && i !== 'path') {
+          correctProps[i] = props[i];
+        }
+      }
+    }
+
+    ;
+    return correctProps;
+  };
+
+  return (
+    /*#__PURE__*/
+    function (_React$PureComponent) {
+      (0, _inherits2["default"])(_class, _React$PureComponent);
+
+      function _class() {
+        (0, _classCallCheck2["default"])(this, _class);
+        return (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(_class).apply(this, arguments));
+      }
+
+      (0, _createClass2["default"])(_class, [{
+        key: "render",
+        value: function render() {
+          var _this3 = this;
+
+          var _this$props2 = this.props,
+              exact = _this$props2.exact,
+              path = _this$props2.path;
+          return _react["default"].createElement(_reactRouterDom.HashRouter, null, _react["default"].createElement(_reactRouterDom.Route, (0, _extends2["default"])({
+            exact: exact,
+            path: path
+          }, {
+            component: function component(_props) {
+              return _react["default"].createElement(Com, Object.assign({
+                link: _reactRouterDom.Link,
+                router: _reactRouterDom.HashRouter,
+                "switch": _reactRouterDom.Switch
+              }, ignoreSpecialProps(_this3.props), _props));
+            }
+          })));
+        }
+      }]);
+      return _class;
+    }(_react["default"].PureComponent)
+  );
+};
+
+exports.route = route;
+
 var focus = function focus(Com) {
   var _temp;
 
@@ -292,15 +355,15 @@ var focus = function focus(Com) {
     (0, _inherits2["default"])(_temp, _React$Component3);
 
     function _temp(props) {
-      var _this3;
+      var _this4;
 
       (0, _classCallCheck2["default"])(this, _temp);
-      _this3 = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(_temp).call(this, props));
-      (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this3), "saveComponentsMap", function (comsRef) {
+      _this4 = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(_temp).call(this, props));
+      (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "saveComponentsMap", function (comsRef) {
         if (comsRef) {
-          var _this3$props = _this3.props,
-              id = _this3$props.id,
-              __focusInternalInstanceId = _this3$props.__focusInternalInstanceId;
+          var _this4$props = _this4.props,
+              id = _this4$props.id,
+              __focusInternalInstanceId = _this4$props.__focusInternalInstanceId;
 
           if ($focus__used__component__set.every(function (comsObj) {
             return comsObj.componentId !== id;
@@ -308,29 +371,29 @@ var focus = function focus(Com) {
             var componentEl = {
               componentId: id,
               ref: comsRef,
-              parentRef: (0, _assertThisInitialized2["default"])(_this3),
+              parentRef: (0, _assertThisInitialized2["default"])(_this4),
               __focusInternalInstanceId: __focusInternalInstanceId
             };
             $focus__used__component__set.push(componentEl);
           }
         }
       });
-      (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this3), "changeProps", function (partialState) {
+      (0, _defineProperty2["default"])((0, _assertThisInitialized2["default"])(_this4), "changeProps", function (partialState) {
         if (Object.prototype.toString.call(partialState) !== '[object Object]') {
           throw new TypeError('partialState is not a pure object @changeProps');
         }
 
         ;
 
-        _this3.setState(partialState);
+        _this4.setState(partialState);
       });
 
-      if (_this3.props.children || _this3.props.children && _this3.props.children.length === 0) {
-        _this3.props.children = null;
+      if (_this4.props.children || _this4.props.children && _this4.props.children.length === 0) {
+        _this4.props.children = null;
       }
 
-      _this3.emmit = _this3.emmit.bind((0, _assertThisInitialized2["default"])(_this3));
-      return _this3;
+      _this4.emmit = _this4.emmit.bind((0, _assertThisInitialized2["default"])(_this4));
+      return _this4;
     }
 
     (0, _createClass2["default"])(_temp, [{
