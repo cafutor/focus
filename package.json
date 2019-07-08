@@ -1,6 +1,6 @@
 {
   "name": "focus-center",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "focus center",
   "scripts": {
     "dev": "npx babel index.development.js --out-file index.js --watch && npx babel event-center/index.development.js --out-file event-center/index.js --watch"
