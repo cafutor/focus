@@ -2,7 +2,8 @@
 focus尝试解决的问题:提高业务组件的复用性，让你的团队可以快速的开发或者维护页面的业务逻辑，可以让你的团队把重心放在开发业务组件上。看到这里可能你会有点不明白，作者说的什么东西啊，别急，我会慢慢解释。
 现在前端页面的开发早变成了一个个的组件，但是组件应该是和复用性挂钩的,这也是评价一个组件好坏的指标之一。如果业务重复，ui重复，这个时候如果还是在页面写重复的组件，无疑是在浪费工作量，并且据我所知在页面工程上进行组件的维护是一个非常不吃力的做法，并且还会增加整个工程的混乱度，团队还会不停的写着重复的代码。
 正确的做法是需要进行业务组件的沉淀，将它从页面工程分离，进行单独的维护，将焦点放在业务组件上，然后再下放到你的页面中。这样做的好处就是可以解放整个团队的生产力。
-    
+
+# 对于多页应用的使用场景  
 
 ## focus需要结合focus-loader来使用，入口是index.view文件
 
@@ -219,3 +220,146 @@ class MyTodoList extends React.Component {
 };
 export default MyTodoList;
 ```
+
+# 对于单页应用使用的场景(单页应用focus-center@2.x,focus-loader@2.x)
+ ```
+一般的需要在单页中引入redux用来管理整个页面的状态，但是和react-redux不同，focus会和store解耦，不会侵入你的组件，就是react-redux的connect hoc，如果组件和connect结合，那必然是需要用到mapStateToProps，然后右需要去重新定一个组件，一般的这种组件是不可复用的
+ ```
+ ***
+ 取而代之的是使用:
+ ```javascript
+ import { getComponent, updateModel, getModel } from 'focus-center';
+import actions from './store/actions';
+    getComponent('testRouteOne').selectStoreStateToProps((storeState) => {
+    console.log(storeState, 'storeState');
+    return {
+
+    };
+}).subscribe((eventAction, target) => {
+    /***
+     * 
+     * api  setProps is invalid if there is a redux store,you sholud use redux store 
+     * to manage your whole state
+     * 
+     * **/
+    console.log(eventAction, 'eventAction');
+    updateModel((dispatch) => {
+        fetch('/xxxx', {
+            method: 'POST',
+            headers: {
+                contentType: 'application/x-www-form-urlencoded',
+                xPoweredBy: 'huangtao',
+            },
+            body: 'name=huangtao&from=hubei',
+        }).then((res) => {
+            console.log(res, 'res');
+            dispatch({
+                type: actions.CHANGE_LINK_LIST,
+                data: [{
+                    name: '商品架构页面',
+                    link: '/structure',
+                    id: 'goodsStructure'
+                }]
+            })
+            dispatch({
+                type: actions.CHANGE_ONE,
+                data: {
+                    one: 'one',
+                    two: 'two',
+                    three: 'three',
+                }
+            })
+        }).catch((e) => {
+
+        }).finally(() => {
+            // shut down something
+        });
+    });
+});
+ ```
+ selectStoreStateToProps是个listener，store的每一次更改，都会触发listener的调用，确保输出到对应组件的store是正确的
+ 
+ 单页应用通常需要使用route，你现在可以这样来组织你的spa的view
+ 
+ ```jsx
+ import React from 'react';
+import TestRoute from './common/TestRoute.jsx';
+import SideBar from './common/sideBar';
+import FooterBar from './common/footBar';
+import './index.business';
+import './index.scss';
+
+<View modelFromServerKey="model" customModel="./index.model" root="root">
+    <Scope className="h-app-container">
+        <Scope className="h-side-bar">
+            <SideBar id="sideBar" />
+        </Scope>
+        <Scope className='h-main-body'>
+            <Scope>
+                <Switch>
+                    <RouteScope  path="/one" >
+                        <TestRoute childrenPath="/one/three" id="testRouteOne" />
+                        <TestRoute childrenPath="/one/two" id="testRouteTwo" />
+                    </RouteScope>
+                    <RouteScope exact path="/details">
+                        <TestRoute id="testRouteThree" />
+                        <TestRoute id="testRouteFour" />
+                    </RouteScope>
+                    <RouteScope exact path="/details/:id">
+                        <Text type="div" value="huangweidong" />
+                        <TestRoute id="details" />
+                    </RouteScope>
+                    <RouteScope>
+                        <TestRoute id="testRouteFive" />
+                    </RouteScope>
+                </Switch>
+            </Scope>
+            <FooterBar />
+        </Scope>
+    </Scope>
+</View>
+ ```
+
+ReactScope是一个内置的组件，Switch的功能则和react-router-dom一样，
+因为需要将match,location,computedMatch...等来自react-router-dom的props注入到ReactScope的子节点中，所以使用了cloneElement来注入props。
+
+同样的focus-center提供了一个route注解，用来注入(link: Link, switch: Switch, route: Route)react-router-dom基础组件，但通常的只有navbar需要这个。
+```javascript
+import React from 'react';
+import focus, { route } from 'focus-center';
+import PropTypes from 'prop-types';
+
+@route
+@focus
+class SideBar extends React.Component {
+    static defaultProps = {
+        linkList: []
+    };
+    static propTypes = {
+        linkList: PropTypes.arrayOf(PropTypes.shape({
+            link: PropTypes.string.isRequired,
+            name: PropTypes.string.isRequired,
+            id: PropTypes.string.isRequired,
+        }))
+    };
+    render() {
+        const { linkList, link: Link } = this.props;
+        return (<div className='h-side-bar-container'>
+            <ul>
+                {linkList.map((linkEl) => {
+                    return (<li key={linkEl.id}>
+                        <Link to={linkEl.link}>
+                            {linkEl.name}
+                        </Link>
+                    </li>)
+                })}
+            </ul>
+        </div>)
+    }
+};
+
+export default SideBar;
+```
+
+
+

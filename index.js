@@ -5,17 +5,15 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports["default"] = exports.route = exports.View = exports.Scope = exports.Text = exports.getModel = exports.updateModel = exports.getComponent = exports.saveRootModelPropsSet = exports.saveRootElement = void 0;
-
-var _objectSpread2 = _interopRequireDefault(require("@babel/runtime/helpers/objectSpread"));
+exports["default"] = exports.RouteScope = exports.route = exports.Scope = exports.Switch = exports.View = exports.Text = exports.getModel = exports.updateModel = exports.getComponent = exports.saveReduxStore = exports.isUseReduxStore = exports.saveRootModelPropsSet = exports.saveRootElement = void 0;
 
 var _assertThisInitialized2 = _interopRequireDefault(require("@babel/runtime/helpers/assertThisInitialized"));
+
+var _objectSpread2 = _interopRequireDefault(require("@babel/runtime/helpers/objectSpread"));
 
 var _extends2 = _interopRequireDefault(require("@babel/runtime/helpers/extends"));
 
 var _objectWithoutProperties2 = _interopRequireDefault(require("@babel/runtime/helpers/objectWithoutProperties"));
-
-var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
 
 var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
 
@@ -27,6 +25,8 @@ var _getPrototypeOf2 = _interopRequireDefault(require("@babel/runtime/helpers/ge
 
 var _inherits2 = _interopRequireDefault(require("@babel/runtime/helpers/inherits"));
 
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
 var _react = _interopRequireDefault(require("react"));
 
 var _eventCenter = _interopRequireDefault(require("./event-center"));
@@ -37,8 +37,18 @@ var _utils = require("./utils");
 
 var eventCenter = new _eventCenter["default"]();
 var $focus__used__component__set = [];
+var $select_store_state_to_props_list = [];
 var $focus__used__root__element = null;
-var $focus_model_props_set = null; // save root element
+var $focus_model_props_set = null;
+var $focus_is_use_redux_store = false;
+var $focus_redux_store = null; // get seletStoreStateToProps cb
+
+var seletStoreStateToPropsFun = function seletStoreStateToPropsFun(selectStoreStateToPropsList, componentId) {
+  for (var i = 0, len = selectStoreStateToPropsList.length; i < len; i++) {
+    if (componentId === selectStoreStateToPropsList[i].componentId) return selectStoreStateToPropsList[i].selectStoreStateToProps;
+  }
+}; // save root element
+
 
 var saveRootElement = function saveRootElement(focusRootElement) {
   $focus__used__root__element = focusRootElement;
@@ -49,78 +59,113 @@ exports.saveRootElement = saveRootElement;
 
 var saveRootModelPropsSet = function saveRootModelPropsSet(rootModelJson) {
   $focus_model_props_set = rootModelJson;
-};
+}; // is use redux store
+
 
 exports.saveRootModelPropsSet = saveRootModelPropsSet;
 
+var isUseReduxStore = function isUseReduxStore(_isUseReduxStore) {
+  $focus_is_use_redux_store = _isUseReduxStore;
+}; // save redux store
+
+
+exports.isUseReduxStore = isUseReduxStore;
+
+var saveReduxStore = function saveReduxStore(store) {
+  $focus_redux_store = store;
+};
+
+exports.saveReduxStore = saveReduxStore;
+
 var getComponent = function getComponent(componentId) {
-  var component = {
-    setProps: function setProps(partialState, didUpdate) {
-      var _this = this;
+  if (Object.prototype.toString.call(componentId) !== '[object String]' || !componentId.trim()) {
+    throw new Error("component id error:".concat(componentId));
+  }
 
-      $focus__used__component__set.forEach(function (comObj) {
-        // debugger;
-        if (comObj.componentId === componentId) {
-          //  如果整个组件没被$model标记，则走更新state
-          if (!comObj.__focusInternalInstanceId) {
-            comObj.parentRef.setState(partialState, function () {
-              if (didUpdate && Object.prototype.toString.call(didUpdate) === '[object Function]') didUpdate(_this.getProps());
-            });
-          } else {
-            var partialStateKeys = Object.keys(partialState);
-            /****
-             * 
-             * 找到所有此component的prop被model引用的key
-             * 
-             * **/
+  ;
 
-            var filterPropSet = $focus_model_props_set.filter(function (propEl) {
-              return propEl.__focusInternalInstance === comObj.__focusInternalInstanceId;
-            });
-            /***
-             * 
-             * 找到此次更新中被model标记的prop
-             * 然后执行更新
-             * 
-             * */
+  function setProps(partialState, didUpdate) {
+    var _this = this;
 
-            var partialStateForModel = partialStateKeys.reduce(function (initialObjValue, partialStateKey) {
-              if (filterPropSet.some(function (filterPropSetEl) {
-                return filterPropSetEl.prop === partialStateKey;
-              })) {
-                initialObjValue[partialStateKey] = partialState[partialStateKey];
-              }
+    if ($focus__used__component__set.every(function (comInst) {
+      return comInst.componentId !== componentId;
+    })) throw new Error("can not find component ".concat(componentId, " !"));
+    $focus__used__component__set.forEach(function (comObj) {
+      // debugger;
+      if (comObj.componentId === componentId) {
+        //  如果整个组件没被$model标记，则走更新state
+        if (!comObj.__focusInternalInstanceId) {
+          comObj.parentRef.setState(partialState, function () {
+            if (didUpdate && Object.prototype.toString.call(didUpdate) === '[object Function]') didUpdate(_this.getProps());
+          });
+        } else {
+          var partialStateKeys = Object.keys(partialState);
+          /****
+           * 
+           * 找到所有此component的prop被model引用的key
+           * 
+           * **/
 
-              ;
-              return initialObjValue;
-            }, {});
-            if (!(0, _utils.isObjEmpty)(partialStateForModel)) updateModel(partialStateForModel, function () {
-              if (didUpdate && Object.prototype.toString.call(didUpdate) === '[object Function]') didUpdate(_this.getProps());
-            });
-            /****
-             * 
-             * 找到此次更新中没被model标记的prop
-             * 
-             * ***/
+          var filterPropSet = $focus_model_props_set.filter(function (propEl) {
+            return propEl.__focusInternalInstance === comObj.__focusInternalInstanceId;
+          });
+          /***
+           * 
+           * 找到此次更新中被model标记的prop
+           * 然后执行更新
+           * 
+           * */
 
-            var usefulState = partialStateKeys.reduce(function (initialValue, stateKey) {
-              if (filterPropSet.every(function (propEl) {
-                return propEl.prop !== stateKey;
-              })) {
-                initialValue[key] = partialState[key];
-              }
+          var partialStateForModel = partialStateKeys.reduce(function (initialObjValue, partialStateKey) {
+            if (filterPropSet.some(function (filterPropSetEl) {
+              return filterPropSetEl.prop === partialStateKey;
+            })) {
+              initialObjValue[partialStateKey] = partialState[partialStateKey];
+            }
 
-              ;
-              return initialValue;
-            }, {});
-            if (!(0, _utils.isObjEmpty)(usefulState)) comObj.parentRef.setState(usefulState, function () {
-              if (didUpdate && Object.prototype.toString.call(didUpdate) === '[object Function]') didUpdate(_this.getProps());
-            });
-          }
+            ;
+            return initialObjValue;
+          }, {});
+          if (!(0, _utils.isObjEmpty)(partialStateForModel)) updateModel(partialStateForModel, function () {
+            if (didUpdate && Object.prototype.toString.call(didUpdate) === '[object Function]') didUpdate(_this.getProps());
+          });
+          /****
+           * 
+           * 找到此次更新中没被model标记的prop
+           * 
+           * ***/
+
+          var usefulState = partialStateKeys.reduce(function (initialValue, stateKey) {
+            if (filterPropSet.every(function (propEl) {
+              return propEl.prop !== stateKey;
+            })) {
+              initialValue[key] = partialState[key];
+            }
+
+            ;
+            return initialValue;
+          }, {});
+          if (!(0, _utils.isObjEmpty)(usefulState)) comObj.parentRef.setState(usefulState, function () {
+            if (didUpdate && Object.prototype.toString.call(didUpdate) === '[object Function]') didUpdate(_this.getProps());
+          });
         }
+      }
+    });
+  }
+
+  ;
+  var component = {
+    selectStoreStateToProps: function selectStoreStateToProps(cb) {
+      $select_store_state_to_props_list.push({
+        componentId: componentId,
+        selectStoreStateToProps: cb
       });
+      return this;
     },
     getProps: function getProps() {
+      if ($focus__used__component__set.every(function (comInst) {
+        return comInst.componentId !== componentId;
+      })) throw new Error("can not find component ".concat(componentId, " !"));
       var propsWithoutFunc = {};
       var ref = $focus__used__component__set.filter(function (comObj) {
         return comObj.componentId === componentId;
@@ -147,25 +192,56 @@ var getComponent = function getComponent(componentId) {
     eventCenter.on("".concat(componentId, "-event"), func);
   }.bind(component);
 
+  component.setProps = function (partialState, didUpdate) {
+    if ($focus_is_use_redux_store) setProps(partialState, didUpdate);
+    throw new Error("warning:setProps is invalid if there is a redux store,\n        you sholud use redux store to manage your whole state.\n        error @component:".concat(componentId, "\n        "));
+  }.bind(component);
+
   return component;
 };
 
 exports.getComponent = getComponent;
 
 var updateModel = function updateModel(partialState, didUpdate) {
-  if ($focus__used__root__element) $focus__used__root__element.setState(partialState, function () {
-    didUpdate && didUpdate($focus__used__root__element.state);
-  });
+  if ($focus_is_use_redux_store && $focus_redux_store) {
+    var subscribeFun = arguments[0];
+
+    if (typeof subscribeFun === 'function' && $focus_redux_store) {
+      subscribeFun($focus_redux_store.dispatch);
+    }
+
+    ;
+  } else {
+    if ($focus__used__root__element) $focus__used__root__element.setState(partialState, function () {
+      didUpdate && didUpdate($focus__used__root__element.state);
+    });
+  }
 };
 
 exports.updateModel = updateModel;
 
 var getModel = function getModel() {
   if ($focus__used__root__element) return $focus__used__root__element.state;
-}; // 基础组件
+}; // ignore special props for text type
 
 
 exports.getModel = getModel;
+
+var ignoreRouteProp = function ignoreRouteProp() {
+  var obj = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+  var propSet = ['computedMatch', 'history', 'location', 'match', 'link', 'routeScope', 'switch'];
+  var props = {};
+
+  for (var i in obj) {
+    if (!propSet.indexOf(i) < 0) {
+      props[i] = obj[i];
+    }
+  }
+
+  ;
+  return props;
+}; // 基础组件
+
 
 var Text =
 /*#__PURE__*/
@@ -173,117 +249,72 @@ function (_React$Component) {
   (0, _inherits2["default"])(Text, _React$Component);
 
   function Text(props) {
-    var _this2$typeMap;
-
     var _this2;
 
     (0, _classCallCheck2["default"])(this, Text);
     _this2 = (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(Text).call(this, props));
-    _this2.typeMap = (_this2$typeMap = {
-      'h1': function h1(_ref) {
-        var value = _ref.value,
-            className = _ref.className;
-        return _react["default"].createElement("h1", {
-          className: className
-        }, value);
-      },
-      'h2': function h2(_ref2) {
-        var value = _ref2.value,
-            className = _ref2.className;
-        return _react["default"].createElement("h2", {
-          className: className
-        }, value);
-      },
-      'h3': function h3(_ref3) {
-        var value = _ref3.value,
-            className = _ref3.className;
-        return _react["default"].createElement("h3", {
-          className: className
-        }, value);
-      },
-      'h4': function h4(_ref4) {
-        var value = _ref4.value,
-            className = _ref4.className;
-        return _react["default"].createElement("h4", {
-          className: className
-        }, value);
-      },
-      'h5': function h5(_ref5) {
-        var value = _ref5.value,
-            className = _ref5.className;
-        return _react["default"].createElement("h5", {
-          className: className
-        }, value);
-      }
-    }, (0, _defineProperty2["default"])(_this2$typeMap, "h5", function h5(_ref6) {
-      var value = _ref6.value,
-          className = _ref6.className;
-      return _react["default"].createElement("h6", {
-        className: className
-      }, value);
-    }), (0, _defineProperty2["default"])(_this2$typeMap, 'span', function span(_ref7) {
-      var value = _ref7.value,
-          className = _ref7.className;
-      return _react["default"].createElement("span", {
-        className: className
-      }, value);
-    }), (0, _defineProperty2["default"])(_this2$typeMap, 'div', function div(_ref8) {
-      var value = _ref8.value,
-          className = _ref8.className;
-      return _react["default"].createElement("div", {
-        className: className
-      }, value);
-    }), _this2$typeMap);
+    _this2.invalidEl = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'div', 'dd', 'dt'];
     return _this2;
   }
 
   (0, _createClass2["default"])(Text, [{
     key: "render",
     value: function render() {
-      var _this$props = this.props,
-          _this$props$type = _this$props.type,
-          type = _this$props$type === void 0 ? 'span' : _this$props$type,
-          otherProps = (0, _objectWithoutProperties2["default"])(_this$props, ["type"]);
-      var Com = this.typeMap[type];
-      return _react["default"].createElement(Com, otherProps);
+      var _ignoreRouteProp = ignoreRouteProp(this.props),
+          _ignoreRouteProp$type = _ignoreRouteProp.type,
+          type = _ignoreRouteProp$type === void 0 ? 'span' : _ignoreRouteProp$type,
+          visible = _ignoreRouteProp.visible,
+          value = _ignoreRouteProp.value,
+          otherProps = (0, _objectWithoutProperties2["default"])(_ignoreRouteProp, ["type", "visible", "value"]);
+
+      if (this.invalidEl.some(function (el) {
+        return el === type;
+      })) {
+        return visible ? _react["default"].createElement(type, otherProps, value) : null;
+      }
+
+      ;
+      return null;
     }
   }]);
   return Text;
 }(_react["default"].Component);
 
 exports.Text = Text;
+(0, _defineProperty2["default"])(Text, "defaultProps", {
+  visible: true
+});
 ;
 
+var View = function View(_ref) {
+  var className = _ref.className,
+      children = _ref.children;
+  return _react["default"].createElement("div", {
+    className: className ? "focus-view ".concat(className) : 'focus-view'
+  }, children);
+};
+
+exports.View = View;
+
+var Switch = function Switch(_ref2) {
+  var children = _ref2.children,
+      otherProps = (0, _objectWithoutProperties2["default"])(_ref2, ["children"]);
+  return _react["default"].createElement(_reactRouterDom.HashRouter, null, _react["default"].createElement(_reactRouterDom.Switch, otherProps, children));
+};
+
+exports.Switch = Switch;
+
 var Scope = function Scope(props) {
-  return _react["default"].createElement("div", props);
+  var className = props.className,
+      id = props.id,
+      children = props.children;
+  return _react["default"].createElement("div", {
+    className: className,
+    id: id
+  }, children);
 };
 
 exports.Scope = Scope;
-
-var View =
-/*#__PURE__*/
-function (_React$Component2) {
-  (0, _inherits2["default"])(View, _React$Component2);
-
-  function View() {
-    (0, _classCallCheck2["default"])(this, View);
-    return (0, _possibleConstructorReturn2["default"])(this, (0, _getPrototypeOf2["default"])(View).apply(this, arguments));
-  }
-
-  (0, _createClass2["default"])(View, [{
-    key: "render",
-    value: function render() {
-      var className = this.props.className;
-      return _react["default"].createElement("div", {
-        className: className ? "focus-view ".concat(className) : 'focus-view'
-      }, this.props.children);
-    }
-  }]);
-  return View;
-}(_react["default"].Component);
-
-exports.View = View;
-;
 
 var route = function route(Com) {
   /**
@@ -309,8 +340,8 @@ var route = function route(Com) {
 
   return (
     /*#__PURE__*/
-    function (_React$PureComponent) {
-      (0, _inherits2["default"])(_class, _React$PureComponent);
+    function (_React$Component2) {
+      (0, _inherits2["default"])(_class, _React$Component2);
 
       function _class() {
         (0, _classCallCheck2["default"])(this, _class);
@@ -322,9 +353,10 @@ var route = function route(Com) {
         value: function render() {
           var _this3 = this;
 
-          var _this$props2 = this.props,
-              exact = _this$props2.exact,
-              path = _this$props2.path;
+          var _this$props = this.props,
+              exact = _this$props.exact,
+              path = _this$props.path,
+              children = _this$props.children;
           return _react["default"].createElement(_reactRouterDom.HashRouter, null, _react["default"].createElement(_reactRouterDom.Route, (0, _extends2["default"])({
             exact: exact,
             path: path
@@ -332,19 +364,50 @@ var route = function route(Com) {
             component: function component(_props) {
               return _react["default"].createElement(Com, Object.assign({
                 link: _reactRouterDom.Link,
-                router: _reactRouterDom.HashRouter,
-                "switch": _reactRouterDom.Switch
+                "switch": Switch,
+                route: _reactRouterDom.Route,
+                children: Com === routeScope ? children : null
               }, ignoreSpecialProps(_this3.props), _props));
             }
           })));
         }
       }]);
       return _class;
-    }(_react["default"].PureComponent)
+    }(_react["default"].Component)
   );
 };
 
 exports.route = route;
+
+var routeScope = function routeScope(props) {
+  var className = props.className,
+      id = props.id,
+      _props$children = props.children,
+      children = _props$children === void 0 ? [] : _props$children,
+      computedMatch = props.computedMatch,
+      history = props.history,
+      location = props.location,
+      match = props.match;
+  return _react["default"].createElement("div", {
+    className: className,
+    id: id
+  }, _react["default"].Children.map(children, function (child) {
+    var routeHistory = (0, _objectSpread2["default"])({
+      computedMatch: computedMatch,
+      history: history,
+      location: location,
+      match: match,
+      link: _reactRouterDom.Link,
+      routeScope: RouteScope,
+      "switch": Switch
+    }, child.props || {});
+    if (typeof child === 'string') return child;
+    return _react["default"].cloneElement(child, routeHistory);
+  }));
+};
+
+var RouteScope = route(routeScope);
+exports.RouteScope = RouteScope;
 
 var focus = function focus(Com) {
   var _temp;
@@ -387,11 +450,25 @@ var focus = function focus(Com) {
 
         _this4.setState(partialState);
       });
+      var _this4$props2 = _this4.props,
+          _id = _this4$props2.id,
+          _focusInternalInstanceId = _this4$props2.__focusInternalInstanceId;
+
+      if (Object.prototype.toString.call(_id) !== '[object String]' || !_id.trim()) {
+        throw new Error("if you use @focus decorator to describe the component,there must be a id prop,error @component:".concat(Com.name, " please check your *.view file"));
+      }
+
+      ;
 
       if (_this4.props.children || _this4.props.children && _this4.props.children.length === 0) {
         _this4.props.children = null;
       }
 
+      if ($focus_redux_store && _focusInternalInstanceId) {
+        throw new Error("if you use redux store,you must not use @model to mark your state,you sholud use getComponent($id).selectStoreStateToProps instead.\n                @component:".concat(_id));
+      }
+
+      ;
       _this4.emmit = _this4.emmit.bind((0, _assertThisInitialized2["default"])(_this4));
       return _this4;
     }
@@ -408,6 +485,24 @@ var focus = function focus(Com) {
     }, {
       key: "render",
       value: function render() {
+        if ($focus_is_use_redux_store) {
+          var componentId = this.props.id;
+          var selectStoreStateToProps = seletStoreStateToPropsFun($select_store_state_to_props_list, componentId);
+
+          if ($focus_redux_store && typeof selectStoreStateToProps === 'function') {
+            var partialProps = selectStoreStateToProps($focus_redux_store.getState());
+            return _react["default"].createElement(Com, (0, _extends2["default"])({
+              ref: this.saveComponentsMap
+            }, (0, _objectSpread2["default"])({}, this.props, partialProps, {
+              emmit: this.emmit,
+              changeProps: this.changeProps
+            })));
+          }
+
+          ;
+        }
+
+        ;
         return _react["default"].createElement(Com, (0, _extends2["default"])({
           ref: this.saveComponentsMap
         }, (0, _objectSpread2["default"])({}, this.props, this.state, {
