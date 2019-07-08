@@ -280,6 +280,8 @@ import actions from './store/actions';
  selectStoreStateToProps是个listener，store的每一次更改，都会触发listener的调用，确保输出到对应组件的store是正确的
  
  单页应用通常需要使用route，你现在可以这样来组织你的spa的view
+ 如果index.model文件导出的是一个store，则modelFromServerKey="model"将不再适用，对于一个使用了redux-store的应用来说，再去暴露这个key不再有意义
+
  
  ```jsx
  import React from 'react';
@@ -289,7 +291,7 @@ import FooterBar from './common/footBar';
 import './index.business';
 import './index.scss';
 
-<View modelFromServerKey="model" customModel="./index.model" root="root">
+<View  customModel="./index.model" root="root">
     <Scope className="h-app-container">
         <Scope className="h-side-bar">
             <SideBar id="sideBar" />
@@ -361,5 +363,10 @@ class SideBar extends React.Component {
 export default SideBar;
 ```
 
+对于单页应用很重要的一点是导出的model必须是一个react store
+index.model文件
+```javascript
+import store from './store';
 
-
+export default store;
+```
