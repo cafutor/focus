@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "dev": "npx babel src --out-dir lib --watch",
-    "build": "npx babel src --out-dir lib"
+    "build": "npx babel src --out-dir lib",
+    "test":"jest --watch"
   },
   "repository": {
     "type": "git",
