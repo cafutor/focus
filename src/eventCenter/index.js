@@ -1,6 +1,8 @@
 export default class EventCenter {
     eventSet = [];
-
+    constructor(){
+        this.emit=this.emmit;
+    }
     on(eventName, listener, once = false) {
         if (!eventName || !eventName.replace(/\s/g, '') === '' || typeof eventName !== 'string') {
             throw new TypeError('evnet name is needed and it is value must be a string');

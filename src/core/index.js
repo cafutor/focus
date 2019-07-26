@@ -1,9 +1,8 @@
 import React from 'react';
-import EventCenter from './event-center';
+import EventCenter from '../eventCenter';
 import { HashRouter as Router, Route, Link, Switch as RouteSwitch } from 'react-router-dom';
-import { isObjEmpty } from './utils';
+import { isObjEmpty } from '../utils';
 const eventCenter = new EventCenter();
-
 const $focus__used__component__set = [];
 const $select_store_state_to_props_list = [];
 let $focus__used__root__element = null;

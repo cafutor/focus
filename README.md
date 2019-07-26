@@ -129,6 +129,9 @@ import './index.business';
 ## 一些概念和规范
 * 如果你需要将业务组件的事件通过event center发送出来，比如通过整个model和其他的业务组件通信或者更新model，则必须在你的业务组件中引入focus高阶组件，这个高阶组件会赋予wrapper组件两个props，一个emmit事件的prop，一个changeProps。
 emmit第一个参数是事件的type,用来描述事件的行为，第二个参数则是事件传入的参数。给业务组件传入id prop，主要是用来订阅组件的事件。
+~~~
+tips:emmit单词拼写错误，version:2.1.2已经修复，emmit和emit都可以使用，3.x版本将移除emmit
+~~~
 
 ```javascript
     import {getComponent,updateModel,getModel} from 'focus-center';

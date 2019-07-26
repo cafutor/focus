@@ -1,9 +1,11 @@
 {
   "name": "focus-center",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "focus center",
+  "main": "lib/index.js",
   "scripts": {
-    "dev": "npx babel index.development.js --out-file index.js --watch && npx babel event-center/index.development.js --out-file event-center/index.js --watch"
+    "dev": "npx babel src --out-dir lib --watch",
+    "build": "npx babel src --out-dir lib"
   },
   "repository": {
     "type": "git",
@@ -35,6 +37,7 @@
     "@babel/plugin-proposal-throw-expressions": "^7.2.0",
     "@babel/plugin-syntax-async-generators": "^7.2.0",
     "@babel/plugin-syntax-dynamic-import": "^7.2.0",
+    "@babel/plugin-syntax-export-default-from": "^7.2.0",
     "@babel/plugin-syntax-import-meta": "^7.2.0",
     "@babel/plugin-transform-runtime": "^7.4.4",
     "@babel/polyfill": "^7.4.4",
