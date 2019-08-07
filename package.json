@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "npx babel src --out-dir lib --watch",
     "build": "npx babel src --out-dir lib",
-    "test":"jest --watch"
+    "test": "npx jest --watch"
   },
   "repository": {
     "type": "git",
@@ -46,6 +46,7 @@
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.3.3",
     "@babel/runtime": "^7.4.4",
+    "jest": "^24.8.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6"
   },
